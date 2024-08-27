@@ -7,21 +7,13 @@ const calculator = {
 
 function inputDigit(digit) {
     const { displayValue, waitingForSecondOperand } = calculator;
-
-    if (waitingForSecondOperand === true) {
-        calculator.displayValue = digit;
-        calculator.waitingForSecondOperand = false;
-    } else {
-        calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
-    }
+    calculator.displayValue = waitingForSecondOperand ? digit : displayValue === '0' ? digit : displayValue + digit;
+    calculator.waitingForSecondOperand = false;
 }
 
 function inputDecimal(dot) {
-    if (calculator.waitingForSecondOperand === true) return;
-
-    if (!calculator.displayValue.includes(dot)) {
-        calculator.displayValue += dot;
-    }
+    if (calculator.waitingForSecondOperand) return;
+    if (!calculator.displayValue.includes(dot)) calculator.displayValue += dot;
 }
 
 function handleOperator(nextOperator) {
@@ -50,7 +42,10 @@ const performCalculation = {
     '*': (firstOperand, secondOperand) => firstOperand * secondOperand,
     '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
     '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
-    '=': (firstOperand, secondOperand) => secondOperand
+    '=': (firstOperand, secondOperand) => secondOperand,
+    '%': (firstOperand) => firstOperand / 100,
+    'sqrt': (firstOperand) => Math.sqrt(firstOperand),
+    '^': (firstOperand, secondOperand) => Math.pow(firstOperand, secondOperand),
 };
 
 function resetCalculator() {
@@ -65,14 +60,16 @@ function updateDisplay() {
     display.value = calculator.displayValue;
 }
 
+function handleBackspace() {
+    calculator.displayValue = calculator.displayValue.slice(0, -1) || '0';
+}
+
 updateDisplay();
 
 const keys = document.querySelector('.calculator-keys');
 keys.addEventListener('click', (event) => {
     const { target } = event;
-    if (!target.matches('button')) {
-        return;
-    }
+    if (!target.matches('button')) return;
 
     if (target.classList.contains('operator')) {
         handleOperator(target.value);
@@ -88,6 +85,20 @@ keys.addEventListener('click', (event) => {
 
     if (target.classList.contains('all-clear')) {
         resetCalculator();
+        updateDisplay();
+        return;
+    }
+
+    if (target.classList.contains('backspace')) {
+        handleBackspace();
+        updateDisplay();
+        return;
+    }
+
+    if (target.classList.contains('function')) {
+        const { displayValue } = calculator;
+        const result = performCalculation[target.value](parseFloat(displayValue));
+        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
         updateDisplay();
         return;
     }
