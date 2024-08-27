@@ -62,7 +62,7 @@ button.equal-sign {
     grid-column: span 2;
 }
 
-button.all-clear, button.toggle-theme {
+button.all-clear, button.toggle-theme, button.toggle-rounding, button.toggle-vibration {
     background-color: #ab47bc;
     color: #fff;
     grid-column: span 2;
@@ -118,6 +118,6 @@ button.equal-sign.dark-mode {
     background-color: #d32f2f;
 }
 
-button.all-clear.dark-mode, button.toggle-theme.dark-mode {
+button.all-clear.dark-mode, button.toggle-theme.dark-mode, button.toggle-rounding.dark-mode, button.toggle-vibration.dark-mode {
     background-color: #7b1fa2;
 }

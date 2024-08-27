@@ -3,7 +3,9 @@ const calculator = {
     firstOperand: null,
     waitingForSecondOperand: false,
     operator: null,
-    memory: 0
+    memory: 0,
+    rounding: true,
+    vibration: false,
 };
 
 function inputDigit(digit) {
@@ -30,7 +32,7 @@ function handleOperator(nextOperator) {
         calculator.firstOperand = inputValue;
     } else if (operator) {
         const result = performCalculation[operator](firstOperand, inputValue);
-        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
+        calculator.displayValue = calculator.rounding ? `${parseFloat(result.toFixed(7))}` : `${result}`;
         calculator.firstOperand = result;
     }
 
@@ -94,11 +96,17 @@ function toggleTheme() {
     document.querySelectorAll('button').forEach(button => button.classList.toggle('dark-mode'));
 }
 
-updateDisplay();
+function toggleRounding() {
+    calculator.rounding = !calculator.rounding;
+}
 
-const keys = document.querySelector('.calculator-keys');
-keys.addEventListener('click', (event) => {
+function toggleVibration() {
+    calculator.vibration = !calculator.vibration;
+}
+
+document.querySelector('.calculator-keys').addEventListener('click', event => {
     const { target } = event;
+
     if (!target.matches('button')) return;
 
     if (target.classList.contains('operator')) {
@@ -132,6 +140,16 @@ keys.addEventListener('click', (event) => {
 
     if (target.classList.contains('toggle-theme')) {
         toggleTheme();
+        return;
+    }
+
+    if (target.classList.contains('toggle-rounding')) {
+        toggleRounding();
+        return;
+    }
+
+    if (target.classList.contains('toggle-vibration')) {
+        toggleVibration();
         return;
     }
 
