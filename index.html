@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Calculator</title>
+    <title>Enhanced Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="calculator">
         <input type="text" class="calculator-screen" value="" disabled />
         <div class="calculator-keys">
+            <button type="button" class="memory" value="MC">MC</button>
+            <button type="button" class="memory" value="MR">MR</button>
+            <button type="button" class="memory" value="M+">M+</button>
+            <button type="button" class="memory" value="M-">M-</button>
+
             <button type="button" class="function" value="%">%</button>
             <button type="button" class="function" value="sqrt">√</button>
             <button type="button" class="function" value="^">x<sup>y</sup></button>
@@ -36,6 +41,7 @@
             <button type="button" class="equal-sign" value="=">=</button>
 
             <button type="button" class="all-clear" value="all-clear">AC</button>
+            <button type="button" class="toggle-theme">Dark Mode</button>
         </div>
     </div>
     <script src="script.js"></script>

@@ -3,6 +3,7 @@ const calculator = {
     firstOperand: null,
     waitingForSecondOperand: false,
     operator: null,
+    memory: 0
 };
 
 function inputDigit(digit) {
@@ -64,6 +65,35 @@ function handleBackspace() {
     calculator.displayValue = calculator.displayValue.slice(0, -1) || '0';
 }
 
+function handleMemory(key) {
+    const { displayValue } = calculator;
+    const value = parseFloat(displayValue);
+
+    switch (key) {
+        case 'MC':
+            calculator.memory = 0;
+            break;
+        case 'MR':
+            calculator.displayValue = calculator.memory.toString();
+            break;
+        case 'M+':
+            calculator.memory += value;
+            break;
+        case 'M-':
+            calculator.memory -= value;
+            break;
+    }
+
+    updateDisplay();
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    document.querySelector('.calculator').classList.toggle('dark-mode');
+    document.querySelector('.calculator-screen').classList.toggle('dark-mode');
+    document.querySelectorAll('button').forEach(button => button.classList.toggle('dark-mode'));
+}
+
 updateDisplay();
 
 const keys = document.querySelector('.calculator-keys');
@@ -95,11 +125,13 @@ keys.addEventListener('click', (event) => {
         return;
     }
 
-    if (target.classList.contains('function')) {
-        const { displayValue } = calculator;
-        const result = performCalculation[target.value](parseFloat(displayValue));
-        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
-        updateDisplay();
+    if (target.classList.contains('memory')) {
+        handleMemory(target.value);
+        return;
+    }
+
+    if (target.classList.contains('toggle-theme')) {
+        toggleTheme();
         return;
     }
 
