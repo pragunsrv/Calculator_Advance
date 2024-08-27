@@ -6,17 +6,20 @@ const calculator = {
     memory: 0,
     rounding: true,
     vibration: false,
+    history: [],
 };
 
 function inputDigit(digit) {
     const { displayValue, waitingForSecondOperand } = calculator;
     calculator.displayValue = waitingForSecondOperand ? digit : displayValue === '0' ? digit : displayValue + digit;
     calculator.waitingForSecondOperand = false;
+    updateDisplay();
 }
 
 function inputDecimal(dot) {
     if (calculator.waitingForSecondOperand) return;
     if (!calculator.displayValue.includes(dot)) calculator.displayValue += dot;
+    updateDisplay();
 }
 
 function handleOperator(nextOperator) {
@@ -28,26 +31,29 @@ function handleOperator(nextOperator) {
         return;
     }
 
-    if (firstOperand == null && !isNaN(inputValue)) {
+    if (firstOperand == null) {
         calculator.firstOperand = inputValue;
     } else if (operator) {
         const result = performCalculation[operator](firstOperand, inputValue);
         calculator.displayValue = calculator.rounding ? `${parseFloat(result.toFixed(7))}` : `${result}`;
         calculator.firstOperand = result;
+        calculator.history.push(`${firstOperand} ${operator} ${inputValue} = ${result}`);
+        updateHistory();
     }
 
     calculator.waitingForSecondOperand = true;
     calculator.operator = nextOperator;
+    updateDisplay();
 }
 
 const performCalculation = {
-    '/': (firstOperand, secondOperand) => firstOperand / secondOperand,
+    '/': (firstOperand, secondOperand) => secondOperand === 0 ? 'Error' : firstOperand / secondOperand,
     '*': (firstOperand, secondOperand) => firstOperand * secondOperand,
     '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
     '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
     '=': (firstOperand, secondOperand) => secondOperand,
-    '%': (firstOperand) => firstOperand / 100,
-    sqrt: (firstOperand) => Math.sqrt(firstOperand),
+    '%': (firstOperand, secondOperand) => firstOperand * secondOperand / 100,
+    sqrt: (firstOperand) => firstOperand < 0 ? 'Error' : Math.sqrt(firstOperand),
     pow: (firstOperand, secondOperand) => Math.pow(firstOperand, secondOperand),
     mod: (firstOperand, secondOperand) => firstOperand % secondOperand,
     ceil: (firstOperand) => Math.ceil(firstOperand),
@@ -58,11 +64,14 @@ const performCalculation = {
     asin: (firstOperand) => toDegrees(Math.asin(firstOperand)),
     acos: (firstOperand) => toDegrees(Math.acos(firstOperand)),
     atan: (firstOperand) => toDegrees(Math.atan(firstOperand)),
-    log: (firstOperand) => Math.log10(firstOperand),
-    ln: (firstOperand) => Math.log(firstOperand),
+    log: (firstOperand) => firstOperand <= 0 ? 'Error' : Math.log10(firstOperand),
+    ln: (firstOperand) => firstOperand <= 0 ? 'Error' : Math.log(firstOperand),
     exp: (firstOperand) => Math.exp(firstOperand),
     abs: (firstOperand) => Math.abs(firstOperand),
-    factorial: (firstOperand) => factorial(firstOperand),
+    factorial: (firstOperand) => {
+        if (firstOperand < 0 || !Number.isInteger(firstOperand)) return 'Error';
+        return factorial(firstOperand);
+    },
     rad: (firstOperand) => toRadians(firstOperand),
     deg: (firstOperand) => toDegrees(firstOperand),
 };
@@ -76,7 +85,6 @@ function toDegrees(radians) {
 }
 
 function factorial(n) {
-    if (n < 0) return NaN;
     if (n === 0 || n === 1) return 1;
     let result = 1;
     for (let i = 2; i <= n; i++) result *= i;
@@ -101,11 +109,12 @@ function handleMemory(action) {
             calculator.memory -= value;
             break;
     }
+    updateDisplay();
 }
 
 function handleBackspace() {
-    calculator.displayValue = calculator.displayValue.slice(0, -1);
-    if (calculator.displayValue === '') calculator.displayValue = '0';
+    calculator.displayValue = calculator.displayValue.slice(0, -1) || '0';
+    updateDisplay();
 }
 
 function resetCalculator() {
@@ -113,11 +122,17 @@ function resetCalculator() {
     calculator.firstOperand = null;
     calculator.waitingForSecondOperand = false;
     calculator.operator = null;
+    updateDisplay();
 }
 
 function updateDisplay() {
     const display = document.querySelector('.calculator-screen');
     display.value = calculator.displayValue;
+}
+
+function updateHistory() {
+    const historyList = document.querySelector('.history-list');
+    historyList.innerHTML = calculator.history.map(entry => `<li>${entry}</li>`).join('');
 }
 
 function toggleTheme() {
@@ -139,38 +154,46 @@ function toggleScientificFunctions() {
     document.querySelector('.scientific-functions').classList.toggle('hidden');
 }
 
+function toggleHistory() {
+    document.querySelector('.calculator-history').classList.toggle('hidden');
+}
+
+function evaluateExpression() {
+    const { firstOperand, displayValue, operator } = calculator;
+    const inputValue = parseFloat(displayValue);
+    
+    if (firstOperand != null && operator) {
+        const result = performCalculation[operator](firstOperand, inputValue);
+        calculator.displayValue = calculator.rounding ? `${parseFloat(result.toFixed(7))}` : `${result}`;
+        calculator.history.push(`${firstOperand} ${operator} ${inputValue} = ${result}`);
+        calculator.firstOperand = result;
+        calculator.operator = null;
+        updateHistory();
+    }
+}
+
 document.querySelector('.calculator-keys').addEventListener('click', event => {
     const { target } = event;
 
     if (!target.matches('button')) return;
 
-    if (target.classList.contains('operator')) {
+    if (target.classList.contains('operator') || target.classList.contains('function')) {
         handleOperator(target.value);
-        updateDisplay();
-        return;
-    }
-
-    if (target.classList.contains('function')) {
-        handleOperator(target.value);
-        updateDisplay();
         return;
     }
 
     if (target.classList.contains('decimal')) {
         inputDecimal(target.value);
-        updateDisplay();
         return;
     }
 
     if (target.classList.contains('all-clear')) {
         resetCalculator();
-        updateDisplay();
         return;
     }
 
     if (target.classList.contains('backspace')) {
         handleBackspace();
-        updateDisplay();
         return;
     }
 
@@ -199,6 +222,15 @@ document.querySelector('.calculator-keys').addEventListener('click', event => {
         return;
     }
 
+    if (target.classList.contains('toggle-history')) {
+        toggleHistory();
+        return;
+    }
+
+    if (target.classList.contains('equals')) {
+        evaluateExpression();
+        return;
+    }
+
     inputDigit(target.value);
-    updateDisplay();
 });
