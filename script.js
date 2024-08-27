@@ -47,21 +47,24 @@ const performCalculation = {
     '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
     '=': (firstOperand, secondOperand) => secondOperand,
     '%': (firstOperand) => firstOperand / 100,
-    'sqrt': (firstOperand) => Math.sqrt(firstOperand),
-    '^': (firstOperand, secondOperand) => Math.pow(firstOperand, secondOperand),
-    'sin': (firstOperand) => Math.sin(toRadians(firstOperand)),
-    'cos': (firstOperand) => Math.cos(toRadians(firstOperand)),
-    'tan': (firstOperand) => Math.tan(toRadians(firstOperand)),
-    'asin': (firstOperand) => toDegrees(Math.asin(firstOperand)),
-    'acos': (firstOperand) => toDegrees(Math.acos(firstOperand)),
-    'atan': (firstOperand) => toDegrees(Math.atan(firstOperand)),
-    'log': (firstOperand) => Math.log10(firstOperand),
-    'ln': (firstOperand) => Math.log(firstOperand),
-    'exp': (firstOperand) => Math.exp(firstOperand),
-    'abs': (firstOperand) => Math.abs(firstOperand),
-    'factorial': (firstOperand) => factorial(firstOperand),
-    'rad': (firstOperand) => toRadians(firstOperand),
-    'deg': (firstOperand) => toDegrees(firstOperand),
+    sqrt: (firstOperand) => Math.sqrt(firstOperand),
+    pow: (firstOperand, secondOperand) => Math.pow(firstOperand, secondOperand),
+    mod: (firstOperand, secondOperand) => firstOperand % secondOperand,
+    ceil: (firstOperand) => Math.ceil(firstOperand),
+    floor: (firstOperand) => Math.floor(firstOperand),
+    sin: (firstOperand) => Math.sin(toRadians(firstOperand)),
+    cos: (firstOperand) => Math.cos(toRadians(firstOperand)),
+    tan: (firstOperand) => Math.tan(toRadians(firstOperand)),
+    asin: (firstOperand) => toDegrees(Math.asin(firstOperand)),
+    acos: (firstOperand) => toDegrees(Math.acos(firstOperand)),
+    atan: (firstOperand) => toDegrees(Math.atan(firstOperand)),
+    log: (firstOperand) => Math.log10(firstOperand),
+    ln: (firstOperand) => Math.log(firstOperand),
+    exp: (firstOperand) => Math.exp(firstOperand),
+    abs: (firstOperand) => Math.abs(firstOperand),
+    factorial: (firstOperand) => factorial(firstOperand),
+    rad: (firstOperand) => toRadians(firstOperand),
+    deg: (firstOperand) => toDegrees(firstOperand),
 };
 
 function toRadians(degrees) {
@@ -73,8 +76,11 @@ function toDegrees(radians) {
 }
 
 function factorial(n) {
-    if (n === 0) return 1;
-    return n * factorial(n - 1);
+    if (n < 0) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let result = 1;
+    for (let i = 2; i <= n; i++) result *= i;
+    return result;
 }
 
 function handleMemory(action) {
@@ -129,6 +135,10 @@ function toggleVibration() {
     calculator.vibration = !calculator.vibration;
 }
 
+function toggleScientificFunctions() {
+    document.querySelector('.scientific-functions').classList.toggle('hidden');
+}
+
 document.querySelector('.calculator-keys').addEventListener('click', event => {
     const { target } = event;
 
@@ -181,6 +191,11 @@ document.querySelector('.calculator-keys').addEventListener('click', event => {
 
     if (target.classList.contains('toggle-vibration')) {
         toggleVibration();
+        return;
+    }
+
+    if (target.classList.contains('toggle-scf')) {
+        toggleScientificFunctions();
         return;
     }
 
