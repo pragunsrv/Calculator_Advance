@@ -10,7 +10,7 @@ body {
 }
 
 .calculator {
-    width: 360px;
+    width: 400px;
     background-color: #fff;
     border-radius: 15px;
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
@@ -38,7 +38,7 @@ body {
 
 button {
     height: 60px;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     border: none;
     border-radius: 10px;
     background-color: #f9f9f9;
@@ -46,7 +46,7 @@ button {
     transition: background-color 0.3s;
 }
 
-button.function, button.memory {
+button.function {
     background-color: #80cbc4;
     color: #fff;
 }
@@ -59,20 +59,18 @@ button.operator {
 button.equal-sign {
     background-color: #ef5350;
     color: #fff;
-    grid-column: span 2;
 }
 
 button.all-clear, button.toggle-theme, button.toggle-rounding, button.toggle-vibration {
     background-color: #ab47bc;
     color: #fff;
-    grid-column: span 2;
 }
 
 button:active {
     background-color: #e0e0e0;
 }
 
-button.function:active, button.memory:active {
+button.function:active {
     background-color: #4db6ac;
 }
 
@@ -106,7 +104,7 @@ button.dark-mode {
     color: #ffffff;
 }
 
-button.function.dark-mode, button.memory.dark-mode {
+button.function.dark-mode {
     background-color: #00796b;
 }
 

@@ -49,7 +49,58 @@ const performCalculation = {
     '%': (firstOperand) => firstOperand / 100,
     'sqrt': (firstOperand) => Math.sqrt(firstOperand),
     '^': (firstOperand, secondOperand) => Math.pow(firstOperand, secondOperand),
+    'sin': (firstOperand) => Math.sin(toRadians(firstOperand)),
+    'cos': (firstOperand) => Math.cos(toRadians(firstOperand)),
+    'tan': (firstOperand) => Math.tan(toRadians(firstOperand)),
+    'asin': (firstOperand) => toDegrees(Math.asin(firstOperand)),
+    'acos': (firstOperand) => toDegrees(Math.acos(firstOperand)),
+    'atan': (firstOperand) => toDegrees(Math.atan(firstOperand)),
+    'log': (firstOperand) => Math.log10(firstOperand),
+    'ln': (firstOperand) => Math.log(firstOperand),
+    'exp': (firstOperand) => Math.exp(firstOperand),
+    'abs': (firstOperand) => Math.abs(firstOperand),
+    'factorial': (firstOperand) => factorial(firstOperand),
+    'rad': (firstOperand) => toRadians(firstOperand),
+    'deg': (firstOperand) => toDegrees(firstOperand),
 };
+
+function toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+function toDegrees(radians) {
+    return radians * (180 / Math.PI);
+}
+
+function factorial(n) {
+    if (n === 0) return 1;
+    return n * factorial(n - 1);
+}
+
+function handleMemory(action) {
+    const { displayValue } = calculator;
+    const value = parseFloat(displayValue);
+
+    switch (action) {
+        case 'MC':
+            calculator.memory = 0;
+            break;
+        case 'MR':
+            calculator.displayValue = `${calculator.memory}`;
+            break;
+        case 'M+':
+            calculator.memory += value;
+            break;
+        case 'M-':
+            calculator.memory -= value;
+            break;
+    }
+}
+
+function handleBackspace() {
+    calculator.displayValue = calculator.displayValue.slice(0, -1);
+    if (calculator.displayValue === '') calculator.displayValue = '0';
+}
 
 function resetCalculator() {
     calculator.displayValue = '0';
@@ -61,32 +112,6 @@ function resetCalculator() {
 function updateDisplay() {
     const display = document.querySelector('.calculator-screen');
     display.value = calculator.displayValue;
-}
-
-function handleBackspace() {
-    calculator.displayValue = calculator.displayValue.slice(0, -1) || '0';
-}
-
-function handleMemory(key) {
-    const { displayValue } = calculator;
-    const value = parseFloat(displayValue);
-
-    switch (key) {
-        case 'MC':
-            calculator.memory = 0;
-            break;
-        case 'MR':
-            calculator.displayValue = calculator.memory.toString();
-            break;
-        case 'M+':
-            calculator.memory += value;
-            break;
-        case 'M-':
-            calculator.memory -= value;
-            break;
-    }
-
-    updateDisplay();
 }
 
 function toggleTheme() {
@@ -110,6 +135,12 @@ document.querySelector('.calculator-keys').addEventListener('click', event => {
     if (!target.matches('button')) return;
 
     if (target.classList.contains('operator')) {
+        handleOperator(target.value);
+        updateDisplay();
+        return;
+    }
+
+    if (target.classList.contains('function')) {
         handleOperator(target.value);
         updateDisplay();
         return;
